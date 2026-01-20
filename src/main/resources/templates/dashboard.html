@@ -1,58 +1,64 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store Dashboard</title>
-    <!-- Import Poppins Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Import FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/style.css">
 
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<!-- Header -->
+<!-- ================= HEADER ================= -->
 <header>
     <div class="logo">Store<span>.</span>Manager</div>
     <nav>
-        <a href="#">Dashboard</a>
-        <!-- <span class="nav-separator"></span>
-        <a href="#">Inventory</a>
-         <span class="nav-separator"></span>
-        <a href="#">Staff</a>
-         <span class="nav-separator"></span>
-        <a href="#" class="active">Orders</a> -->
+        <a href="#" class="active">Dashboard</a>
     </nav>
     <div class="user-profile">
         <img src="https://ui-avatars.com/api/?name=Store+Admin&background=3498db&color=fff" alt="User">
     </div>
 </header>
 
-<!-- Stats Cards -->
+<!-- ================= STATS ================= -->
 <div class="stats-container">
+
     <div class="stat-card">
-        <div class="stat-number" id="statOrders">128</div>
+        <div class="stat-number" id="statOrders"
+             th:text="${dashboard.totalOrder}">
+        </div>
         <div class="stat-label">Total Orders Today</div>
     </div>
+
     <div class="stat-card" style="border-bottom: 4px solid var(--accent-color);">
-        <div class="stat-number" id="statRevenue">$4,250</div>
+        <div class="stat-number" id="statRevenue"
+             th:text="'$' + ${#numbers.formatDecimal(dashboard.revenue, 1, 'COMMA', 2, 'POINT')}">
+        </div>
         <div class="stat-label">Revenue This Month</div>
     </div>
+
     <div class="stat-card">
-        <div class="stat-number" style="color: #f39c12;" id="statPending">8</div>
+        <div class="stat-number" style="color:#f39c12" id="statPending"
+             th:text="${dashboard.pendingOrder}">
+        </div>
         <div class="stat-label">Pending Orders Today</div>
     </div>
+
 </div>
 
-<!-- Main Content Grid -->
+<!-- ================= MAIN CONTENT ================= -->
 <div class="main-content">
 
-    <!-- Left Column: Create Form -->
+    <!-- ===== LEFT: CREATE ORDER ===== -->
     <aside class="form-panel">
         <div class="form-header">Create New Order</div>
+
         <div class="form-body">
             <div class="form-group">
                 <input type="text" id="customerName" class="form-control" placeholder="Customer Name">
@@ -78,16 +84,16 @@
             </div>
 
             <button class="btn-save" id="btnCreateOrder">Create Order</button>
-            <div style="clear: both;"></div>
         </div>
     </aside>
 
-    <!-- Right Column: Table -->
+    <!-- ===== RIGHT: ORDERS TABLE ===== -->
     <main class="table-panel">
+
         <div class="table-header-row">
             <div class="section-title">Recent Orders</div>
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search orders, customers...">
+                <input type="text" id="searchInput" placeholder="Search orders...">
                 <button class="btn-search">Search</button>
             </div>
         </div>
@@ -105,93 +111,72 @@
                     <th>Actions</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr>
-                    <td>Sarah Jenkins</td>
-                    <td>Wireless Headphones</td>
-                    <td>1</td>
-                    <td>$129.00</td>
-                    <td><span class="badge badge-completed">Paid</span></td>
-                    <td class="date-cell">Today <span>10:45 am</span></td>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.customer}"></td>
+                    <td th:text="${order.product}"></td>
+                    <td th:text="${order.quantity}"></td>
+
+                    <td th:text="'$' + ${#numbers.formatDecimal(order.price, 1, 'COMMA', 2, 'POINT')}"></td>
+
                     <td>
-                        <div class="actions">
-                            <button class="btn-action btn-edit"><i class="fas fa-pen"></i></button>
-                            <button class="btn-action btn-delete"><i class="fas fa-trash-alt"></i></button>
-                        </div>
+                        <span class="badge"
+                              th:text="${order.status}"
+                              th:classappend="${order.status == 'Paid'} ? 'badge-completed' : 'badge-pending'">
+                        </span>
                     </td>
-                </tr>
-                <tr>
-                    <td>Mike Ross</td>
-                    <td>Gaming Keyboard RGB</td>
-                    <td>2</td>
-                    <td>$180.00</td>
-                    <td><span class="badge badge-pending">Pending</span></td>
-                    <td class="date-cell">17-01-2026 <span>04:15 pm</span></td>
+
+                    <td th:text="${#dates.format(order.date, 'dd-MM-yyyy')}"></td>
+
+
                     <td>
                         <div class="actions">
-                            <button class="btn-action btn-edit"><i class="fas fa-pen"></i></button>
-                            <button class="btn-action btn-delete"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Jessica Pearson</td>
-                    <td>Office Chair Ergo</td>
-                    <td>5</td>
-                    <td>$1,250.00</td>
-                    <td><span class="badge badge-completed">Paid</span></td>
-                    <td class="date-cell">16-01-2026 <span>11:30 am</span></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn-action btn-edit"><i class="fas fa-pen"></i></button>
-                            <button class="btn-action btn-delete"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Harvey Specter</td>
-                    <td>Vinyl Records Set</td>
-                    <td>3</td>
-                    <td>$95.00</td>
-                    <td><span class="badge badge-pending">Pending</span></td>
-                    <td class="date-cell">15-01-2026 <span>09:20 am</span></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn-action btn-edit"><i class="fas fa-pen"></i></button>
-                            <button class="btn-action btn-delete"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn-action btn-edit">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn-action btn-delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
     </main>
 </div>
 
-<!-- Edit Modal -->
+<!-- ================= MODAL ================= -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <span class="modal-title">Edit Order</span>
             <span class="close-modal">&times;</span>
         </div>
+
         <div class="modal-body">
             <div class="form-group">
                 <label class="form-label">Customer Name</label>
                 <input type="text" id="editCustomerName" class="form-control">
             </div>
+
             <div class="form-group">
                 <label class="form-label">Product</label>
                 <input type="text" id="editProductName" class="form-control">
             </div>
+
             <div class="form-group">
                 <label class="form-label">Quantity</label>
                 <input type="number" id="editOrderQty" class="form-control" min="1">
             </div>
+
             <div class="form-group">
                 <label class="form-label">Total Price ($)</label>
                 <input type="number" id="editOrderPrice" class="form-control" min="0" step="0.01">
             </div>
+
             <div class="form-group">
                 <label class="form-label">Status</label>
                 <select id="editOrderStatus" class="form-control">
@@ -200,6 +185,7 @@
                 </select>
             </div>
         </div>
+
         <div class="modal-footer">
             <button class="btn-cancel" id="btnCancelEdit">Cancel</button>
             <button class="btn-update" id="btnUpdateOrder">Update Order</button>
@@ -207,22 +193,16 @@
     </div>
 </div>
 
-<!-- Toast Container -->
+<!-- ================= TOAST ================= -->
 <div id="toastContainer" class="toast-container"></div>
 
-<!-- JavaScript Logic -->
+<!-- ================= JS ================= -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const btnCreateOrder = document.getElementById('btnCreateOrder');
+
         const tableBody = document.querySelector('#ordersTable tbody');
-        const toastContainer = document.getElementById('toastContainer');
 
-        // Stats Elements
-        const statOrders = document.getElementById('statOrders');
-        const statRevenue = document.getElementById('statRevenue');
-        const statPending = document.getElementById('statPending');
-
-        // Modal Elements
+        // ===== MODAL ELEMENTS =====
         const modal = document.getElementById('editModal');
         const btnCloseModal = document.querySelector('.close-modal');
         const btnCancelEdit = document.getElementById('btnCancelEdit');
@@ -230,120 +210,14 @@
 
         let currentEditRow = null;
 
-        // --- Toaster Function ---
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-
-            const icon = type === 'success'
-                ? '<i class="fas fa-check-circle"></i>'
-                : '<i class="fas fa-exclamation-circle"></i>';
-
-            toast.innerHTML = `${icon} <span>${message}</span>`;
-
-            toastContainer.appendChild(toast);
-
-            // Remove after 3.5s (allow time for fadeOut animation to finish)
-            setTimeout(() => {
-                toast.remove();
-            }, 3500);
-        }
-
-        // --- Stats Helper Function ---
-        function recalculateStats() {
-            const rows = tableBody.querySelectorAll('tr');
-            let totalOrders = 0;
-            let totalRevenue = 0;
-            let totalPending = 0;
-
-            rows.forEach(row => {
-                if(row.style.opacity === '0') return; // Skip deleted rows currently fading out
-
-                totalOrders++;
-
-                // Parse Price: Remove '$', ',', and whitespace
-                const priceText = row.cells[3].innerText;
-                const price = parseFloat(priceText.replace(/[^0-9.-]+/g,""));
-                if (!isNaN(price)) {
-                    totalRevenue += price;
-                }
-
-                // Check Status
-                const statusText = row.cells[4].innerText.trim();
-                if (statusText === 'Pending') {
-                    totalPending++;
-                }
-            });
-
-            statOrders.innerText = totalOrders;
-            statRevenue.innerText = '$' + totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
-            statPending.innerText = totalPending;
-        }
-
-        // --- Create Order ---
-        btnCreateOrder.addEventListener('click', () => {
-            const customer = document.getElementById('customerName').value;
-            const product = document.getElementById('productName').value;
-            const qty = document.getElementById('orderQty').value;
-            const priceInput = document.getElementById('orderPrice').value;
-            const status = document.getElementById('orderStatus').value;
-
-            if(!customer || !product || !qty || !priceInput) {
-                showToast("Please fill in all fields", "error");
-                return;
-            }
-
-            const priceValue = parseFloat(priceInput);
-            const formattedPrice = '$' + priceValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}).toLowerCase();
-
-            const newRow = document.createElement('tr');
-            newRow.classList.add('new-row');
-
-            const badgeClass = status === 'Paid' ? 'badge-completed' : 'badge-pending';
-
-            newRow.innerHTML = `
-                    <td>${customer}</td>
-                    <td>${product}</td>
-                    <td>${qty}</td>
-                    <td>${formattedPrice}</td>
-                    <td><span class="badge ${badgeClass}">${status}</span></td>
-                    <td class="date-cell">Today <span>${timeString}</span></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn-action btn-edit"><i class="fas fa-pen"></i></button>
-                            <button class="btn-action btn-delete"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </td>
-                `;
-
-            tableBody.insertBefore(newRow, tableBody.firstChild);
-
-            // Clear Inputs
-            document.getElementById('customerName').value = '';
-            document.getElementById('productName').value = '';
-            document.getElementById('orderQty').value = '1';
-            document.getElementById('orderPrice').value = '';
-            document.getElementById('orderStatus').value = 'Paid';
-
-            recalculateStats();
-            showToast("Order created successfully!", "success");
-        });
-
-        // --- Event Delegation for Edit and Delete ---
+        // ===== TABLE ACTIONS (EDIT / DELETE) =====
         tableBody.addEventListener('click', (e) => {
+
             // DELETE
             const btnDelete = e.target.closest('.btn-delete');
             if (btnDelete) {
                 const row = btnDelete.closest('tr');
-                row.style.opacity = '0';
-                setTimeout(() => {
-                    row.remove();
-                    recalculateStats();
-                    showToast("Order deleted successfully", "error");
-                }, 300);
+                row.remove();
                 return;
             }
 
@@ -355,73 +229,65 @@
             }
         });
 
-        // --- Modal Functions ---
+        // ===== OPEN MODAL =====
         function openEditModal(row) {
-            // Populate modal fields with row data
             document.getElementById('editCustomerName').value = row.cells[0].innerText;
             document.getElementById('editProductName').value = row.cells[1].innerText;
             document.getElementById('editOrderQty').value = row.cells[2].innerText;
 
-            // Price parsing
-            const priceStr = row.cells[3].innerText.replace(/[^0-9.-]+/g,"");
-            document.getElementById('editOrderPrice').value = priceStr;
+            const price = row.cells[3].innerText.replace(/[^0-9.-]+/g, "");
+            document.getElementById('editOrderPrice').value = price;
 
-            document.getElementById('editOrderStatus').value = row.cells[4].innerText.trim();
+            document.getElementById('editOrderStatus').value =
+                row.cells[4].innerText.trim();
 
             modal.classList.add('show');
         }
 
-        function closeModalFunc() {
+        // ===== CLOSE MODAL =====
+        function closeModal() {
             modal.classList.remove('show');
             currentEditRow = null;
         }
 
-        btnCloseModal.addEventListener('click', closeModalFunc);
-        btnCancelEdit.addEventListener('click', closeModalFunc);
+        btnCloseModal.addEventListener('click', closeModal);
+        btnCancelEdit.addEventListener('click', closeModal);
 
-        // Close modal if clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
-                closeModalFunc();
+                closeModal();
             }
         });
 
-        // --- Update Order ---
+        // ===== UPDATE ROW =====
         btnUpdateOrder.addEventListener('click', () => {
             if (!currentEditRow) return;
 
-            const newCustomer = document.getElementById('editCustomerName').value;
-            const newProduct = document.getElementById('editProductName').value;
-            const newQty = document.getElementById('editOrderQty').value;
-            const newPrice = document.getElementById('editOrderPrice').value;
-            const newStatus = document.getElementById('editOrderStatus').value;
+            currentEditRow.cells[0].innerText =
+                document.getElementById('editCustomerName').value;
 
-            if(!newCustomer || !newProduct || !newQty || !newPrice) {
-                showToast("Please fill in all fields", "error");
-                return;
-            }
+            currentEditRow.cells[1].innerText =
+                document.getElementById('editProductName').value;
 
-            // Update Row Cells
-            currentEditRow.cells[0].innerText = newCustomer;
-            currentEditRow.cells[1].innerText = newProduct;
-            currentEditRow.cells[2].innerText = newQty;
+            currentEditRow.cells[2].innerText =
+                document.getElementById('editOrderQty').value;
 
-            const priceValue = parseFloat(newPrice);
-            currentEditRow.cells[3].innerText = '$' + priceValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            const price = parseFloat(document.getElementById('editOrderPrice').value);
+            currentEditRow.cells[3].innerText =
+                '$' + price.toFixed(2);
 
-            // Update Status Badge
-            const badgeClass = newStatus === 'Paid' ? 'badge-completed' : 'badge-pending';
-            currentEditRow.cells[4].innerHTML = `<span class="badge ${badgeClass}">${newStatus}</span>`;
+            const status = document.getElementById('editOrderStatus').value;
+            const badgeClass = status === 'Paid' ? 'badge-completed' : 'badge-pending';
 
-            recalculateStats();
-            closeModalFunc();
-            showToast("Order updated successfully!", "success");
+            currentEditRow.cells[4].innerHTML =
+                `<span class="badge ${badgeClass}">${status}</span>`;
+
+            closeModal();
         });
 
-        // Initial calc just in case
-        recalculateStats();
     });
 </script>
+
 
 </body>
 </html>

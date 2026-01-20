@@ -1,5 +1,6 @@
 package com.sajid.quiz_four_front.controller;
 
+import com.sajid.quiz_four_front.model.Dashboard;
 import com.sajid.quiz_four_front.model.Login;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,12 +27,14 @@ public class Controller {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest request, Model model) {
+
         String token = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("my-token")) {
-                    token =  cookie.getValue();
+                if ("my-token".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
                 }
             }
         }
@@ -40,16 +43,20 @@ public class Controller {
             return "redirect:/login";
         }
 
-        ResponseEntity<Map> res = restClient.post()
-                .uri("http://localhost:5050/api/login")
-                .header("Authorization" , token)
+        ResponseEntity<Dashboard> res = restClient.get()
+                .uri("http://localhost:5050/api/dashboard")
+                .header("Authorization", token)
                 .retrieve()
-                .toEntity(Map.class);
+                .toEntity(Dashboard.class);
 
+        Dashboard dashboard = res.getBody();
 
+        model.addAttribute("dashboard", dashboard);
+        model.addAttribute("orders", dashboard.getOderList());
 
         return "dashboard";
     }
+
 
     @GetMapping("/login")
     public String login(Model model) {
@@ -76,7 +83,7 @@ public class Controller {
         cookie.setMaxAge(60 * 60 * 24);
 
         response.addCookie(cookie);
-
+        IO.println("Login successful");
         return "redirect:/dashboard";
     }
 }
